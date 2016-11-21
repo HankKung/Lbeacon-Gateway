@@ -1,4 +1,4 @@
-/*gcc blueObex.c -g -o blueObex -I libxbee3/include/ -L libxbee3/lib/ -lxbee -lrt -lpthread -lbluetooth -lobexftp*/
+/*gcc Gateway.c -g -o Gateway -I libxbee3/include/ -L libxbee3/lib/ -lxbee -lrt -lpthread -lbluetooth -lobexftp*/
 #include "Gateway.h"
 /*********************************************************************
  * Parser FUNCTIONS
@@ -106,11 +106,6 @@ void *T_TCP_Receiver(void)
 void *ZigBee_Receiver(void)
 {
     xbee_err ret;
-    /*if ((ret = xbee_setup(&xbee, "xbee2", "/dev/ttyUSB0", 9600)) != XBEE_ENONE) {
-        printf("ret: %d (%s)\n", ret, xbee_errorToStr(ret));
-     return;
-    }*/
-
     memset(&address, 0, sizeof(address));
     address.addr64_enabled = 1;
     address.addr64[0] = 0x00;
@@ -687,8 +682,9 @@ memcpy(test,configstruct.my_zigbee_address,configstruct.my_zigbee_address_len);
  */
 int main(int argc, char **argv)
 {
-    int i=0;
+    int i=0,carry_count=0,carry_map,carry_num;
     char *hostname,*port;
+    char A_IP[]="00000000";
     pthread_t Device_cleaner_id,ZigBee_id,TCP_id;
     configstruct = get_config(CONFIG_FILENAME);
     
@@ -697,8 +693,15 @@ int main(int argc, char **argv)
     for(i=0;i<ZigBee_addr_Scan_count;i++)
     {
     IpTable[i].live = 1;
-    printf("Node:0x%02X%02X%02X%02X 0x%02X%02X%02X%02X\n",IpTable[i].address.addr64[0],IpTable[i].address.addr64[1],IpTable[i].address.addr64[2],IpTable[i].address.addr64[3],IpTable[i].address.addr64[4],IpTable[i].address.addr64[5],IpTable[i].address.addr64[6],IpTable[i].address.addr64[7]);
-    Assign_IP(IpTable[i].address);
+    carry_map=10000000;
+    carry_num = i;
+    for(carry_count = 0;carry_count < 8;carry_count++)
+        {
+            A_IP[carry_count] = 48+(carry_num/carry_map);
+            carry_num = carry_num-(carry_num/carry_map)*carry_map;
+            carry_map/=10;
+        }
+    Assign_IP(IpTable[i].address,A_IP);//naosu
     }
     //*****TCP init
     hostname = malloc(configstruct.hostname_len);
