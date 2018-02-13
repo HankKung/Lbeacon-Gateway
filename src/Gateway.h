@@ -66,6 +66,79 @@
 #include <unistd.h>
 
 
+/* 
+* CONSTANTS 
+*/
+
+/* Maximum number of nodes (LBeacons) per star network */
+#define MAX_NUMBER_NODES 32
+
+/*Length of the beacon's UUID*/
+#define UUID_LENGTH 32
+
+/*Length of the address of the network */
+#define NETWORK_ADD_LENGTH 16
+
+/* Maximum number of characters in location description*/
+#define MAX_LENGTH_LOC_DESCRIPTION  64
+
+#define COORDINATE_LENGTH 64
+
+/*
+* TYPEDEF STRUCTS
+*/
+
+typedef struct coordinates {
+
+  char X_coordinates[COORDINATE_LENGTH];
+  char Y_coordinates[COORDINATE_LENGTH];
+  char Z_coordinates[COORDINATE_LENGTH];
+
+
+}Coordinates;
+
+typedef struct address_map {
+
+  char network_address[NETWORK_ADD_LENGTH];
+  char beacon_uuid[UUID_LENGTH];
+  Coordinates beacon_coordinates;
+  char loc_description[MAX_LENGTH_LOC_DESCRIPTION];
+
+
+}Address_map;
+
+
+/*
+* GLOBAL VARIABLES
+*/
+
+/* A global flag which is initially false and is set by main thread to true 
+* to tell other threads to shutdown, i.e. clean up and return */
+bool system_is_shutting_down;
+
+/*A global flag that is initially false and is set nby main thread to ture 
+* when initialization completes Afterward, the flag is used by other threads 
+* to inform the main thread the need to shutdown. */
+bool ready_to_work;
+
+/* A global flag set to be true by a thread when its inintialiazation failed. */
+bool initialization_failed;
+
+/* Initialization of gateway components invole network activates that may take 
+* time. The main thread should wait until their initialization is sufficiently 
+* compete. These flags enable the modules to inform the main thread when it 
+* happens. */
+bool NSI_initialization_complete;
+bool BHM_initialization_complete;
+bool CommUnit_initialization_complete;
+
+/* An array of address maps */
+Address_map beacon_address[MAX_NUMBER_NODES];
+
+
+
+
+
 
 /*
 *  get_system_time:

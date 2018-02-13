@@ -1,4 +1,4 @@
-# LBeacon
+# Gateway
 #---------------------------------------------------------------------------
 CC = gcc
 OBJS = Gateway.o Utilities.o LinkedList.o
@@ -6,7 +6,7 @@ CFLAGS = -g
 LIB = -L/usr/local/lib
 
 #---------------------------------------------------------------------------
-all: LBeacon
+all: Gateway
 Gateway: $(OBJS)
 	$(CC) $(OBJS) $(CFLAGS) -o Gateway $(LIB) -lrt -lpthread -lmulticobex -lbfb -lbluetooth -lobexftp -lopenobex
 Gateway.o: Gateway.c Gateway.h
