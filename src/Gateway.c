@@ -48,62 +48,116 @@
 
 
 
-int lengthOfU(unsigned char * str)
-{
-    int i = 0;
+long long get_system_time() {
+    /* A struct that stores the time */
+    struct timeb t;
 
-    while(*(str++)){
-        i++;
-        if(i == INT_MAX)
-            return -1;
-    }
+    /* Return value as a long long type */
+    long long system_time;
 
-    return i;
+    /* Convert time from Epoch to time in milliseconds of a long long type */
+    ftime(&t);
+    system_time = 1000 * t.time + t.millitm;
+
+    return system_time;
 }
+
+
+void *NSI_routine() {
+
+
+    return;
+}
+
+void *BHM_routine() {
+
+    return;
+}
+
+void *CommUnit_routine()
+ {
+   
+    return;
+ }
+
+
+Error_code startThread(pthread_t threads ,void * (*thfunct)(void*), void *arg){
+
+    pthread_attr_t attr;
+
+    if ( pthread_attr_init(&attr) != 0
+      || pthread_create(&threads, &attr, thfunct, arg) != 0
+      || pthread_attr_destroy(&attr) != 0
+      || pthread_detach(threads) != 0) {
+
+    return E_START_THREAD;
+  }
+
+  return WORK_SCUCESSFULLY;
+
+}
+
+
+void cleanup_exit(){
+
+    ready_to_work = false;
+    send_message_cancelled = true;
+    free_list(scanned_list);
+    free_list(waiting_list);
+    free_list(tracked_object_list);
+    free(g_idle_handler);
+    free(g_push_file_path);
+    return;
+
+}
+
 
 
 int main(int argc, char **argv)
 {
-    int i=0,carry_count=0,carry_map,carry_num;
-    char *hostname,*port;
-    char A_IP[]="00000000";
-    pthread_t Device_cleaner_id,ZigBee_id,TCP_id;
-    configstruct = get_config(CONFIG_FILENAME);
     
-    //*****Node Dectet
-    ZigBee_Node_dectet();
-    for(i=0;i<ZigBee_addr_Scan_count;i++)
-    {
-    IpTable[i].live = 1;
-    carry_map=10000000;
-    carry_num = i;
-    for(carry_count = 0;carry_count < 8;carry_count++)
-        {
-            A_IP[carry_count] = 48+(carry_num/carry_map);
-            carry_num = carry_num-(carry_num/carry_map)*carry_map;
-            carry_map/=10;
-        }
-    Assign_IP(IpTable[i].address,A_IP);//naosu
-    }
-    //*****TCP init
-    hostname = malloc(configstruct.hostname_len);
-    memcpy(hostname,configstruct.hostname,configstruct.port_len);
-    port = malloc(configstruct.port_len);
-    memcpy(port,configstruct.port,configstruct.port_len);
-    //TCPinit(port,hostname);
-    //*****Device Cleaner
-    pthread_create(&Device_cleaner_id,NULL,(void *) DeviceCleaner,NULL);
-    //*****ZigBee Receiver
-    pthread_create(&ZigBee_id,NULL,(void *) ZigBee_Receiver,NULL);
-    //*****TCP Receiver
-    pthread_create(&TCP_id,NULL,(void *) T_TCP_Receiver,NULL);
-    usleep(20000);
-    for(i=0;i<MAX_OF_DEVICE;i++)
-    UsedDeviceQueue.DeviceUsed[i]= 0;
-    while (1) {
-        scanner_start();
+    /* Define and initialize all importent golbal variables including */
+    system_is_shutting_down = false;
+    ready_to_work = false;
+    initialization_failed = false;
+    NSI_initialization_complete = false;
+    BHM_initilaization_complete = false;
+    CommUnit_initialization_complete = false;
+
+    int return_value;
+
+    pthread_t NSI_routine_thread;
+
+    return_value = startThread(NSI_routine_thread, NSI_routine, NULL);
+
+    if(return_value != WORK_SCUCESSFULLY){
+
+        perror(errordesc[E_START_THREAD].message);
+        cleanup_exit();
     }
 
-    return 0;
+    pthread_t BHM_routine_thread;
+
+    return_value = startThread(BHM_routine_thread, BHM_routine, NULL);
+
+    if(return_value != WORK_SCUCESSFULLY){
+
+        perror(errordesc[E_START_THREAD].message);
+        cleanup_exit();
+    }
+
+    pthread_t CommUnit_routine_thread;
+
+    return_value = startThread(CommUnit_thread, CommUnit_routine, NULL);
+
+    if(return_value != WORK_SCUCESSFULLY){
+
+        perror(errordesc[E_START_THREAD].message);
+        cleanup_exit();
+    }
+
+
+
+
 }
 

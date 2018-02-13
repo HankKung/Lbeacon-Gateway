@@ -156,4 +156,34 @@ Address_map beacon_address[MAX_NUMBER_NODES];
 */
 long long get_system_time();
 
-int lengthOfU(unsigned char * str);
+/*
+*  startThread:
+*
+*  This function initializes the threads.
+*
+*  Parameters:
+*
+*  threads - name of the thread
+*  thfunct - the function for thread to do
+*  arg - the argument for thread's function
+*
+*  Return value:
+*
+*  Error_code: The error code for the corresponding error
+*/
+Error_code startThread(pthread_t threads, void * (*thfunct)(void*), void *arg);
+
+/*
+*  cleanup_exit:
+*
+*  This function releases all the resources and set the flag.
+*
+*  Parameters:
+*
+*  None
+*
+*  Return value:
+*
+*  None
+*/
+void cleanup_exit();
