@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <string.h>
 #include "Gateway.h"
 #include "LBeacon_Zigbee_Gateway.h"
 
@@ -75,6 +80,28 @@ int NSI_routine(){
         NSIcleanupExit( );
     }
     
+    /* Socket Set Up */
+    int sock, length;
+    struct sockaddr_in server, from;
+    struct hostent *hp;
+    char * buffer[BUFFER_SIZE];
+    
+    sock = socket(PF_INET, SOCK_DGRAM, 0);
+    if(sock < 0)
+    {
+        error("Wrong Socket");
+    }
+    server.sin_family = AF_INET;
+    hp = gethostbyname(argv[1]);
+    if(hp == 0)
+    {
+        error("Unknown Host");
+    }
+    bcopy((char *)hp->h_addr, (char *)&server.sin_addr, hp->h_length);
+    server.sin_port = htons(atoi(argv[2]));
+    length = sizeof(struct sockaddr_in);
+    bzero(buffer, BUFFER_SIZE);
+
     // make sure WiFi has been correctly configured ....
     int ping_ret, status;
     status = system("ping google.com");
@@ -116,6 +143,12 @@ int NSI_routine(){
      }
 }
 
+/*
+*
+*/
+int Zigbee_routine(){
+
+}
 
 /*
 *  addrss_map_manager:
@@ -197,4 +230,12 @@ void beacon_join_request(unsigned ID,coordinates Coordinates,
 void NSI_cleanup_exit(){
     ready_to_work = false;
     //free allocated memory
+}
+
+/*
+*
+*/
+void error(char * msg){
+    perror(msg);
+    exit(0);
 }
