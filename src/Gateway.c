@@ -62,24 +62,167 @@ long long get_system_time() {
     return system_time;
 }
 
+/* coordinator initializes the zigbee network:
+- if (PAN ID == 0) scan nearby network and chooses a PAN ID;
+- channel scan to find a good operating channel;
+- ready to access join requests from Lbeacons;
+/* Set up Zigbee connection by calling Zigbee_routine in LBeacon_Zigbee.h */
+void *NSI_routine(){
 
-void *NSI_routine() {
+    if (startThead (Zigbee_routine()) != WORK_SCUCESSFULLY) {
+        initialization_failed = true;
+        NSIcleanupExit( );
+    }
+    
+    /* Socket Set Up */
+    int sock, length;
+    struct sockaddr_in server, from;
+    struct hostent *hp;
+    char * buffer[BUFFER_SIZE];
+    
+    sock = socket(PF_INET, SOCK_DGRAM, 0);
+    if(sock < 0)
+    {
+        error("Wrong Socket");
+    }
+    server.sin_family = AF_INET;
+    hp = gethostbyname(argv[1]);
+    if(hp == 0)
+    {
+        error("Unknown Host");
+    }
+    bcopy((char *)hp->h_addr, (char *)&server.sin_addr, hp->h_length);
+    server.sin_port = htons(atoi(argv[2]));
+    length = sizeof(struct sockaddr_in);
+    bzero(buffer, BUFFER_SIZE);
 
+    // make sure WiFi has been correctly configured ....
+    int ping_ret, status;
+    status = system("ping google.com");
+    if (-1 != status)
+        ping_ret = WEXITSTATUS(status);
 
+     /* initialize beacon_address []
+     - enter a 16-bit network address in each address_map struct in the array
+     .....
+     // start a thread to maintain beacon_address map. The thread
+     // should also check system_is_shutting_down flag periodically
+     // and returns when it finds the flag is true.*/
+     int beacon_count = 1;
+     if (startThead (address_map_manager()) != WORK_SCUCESSFULLY) {
+         initialization_failed = true;
+         NSIcleanupExit( );
+     }
+     // finish phase 2 initialization (in ways TBD)
+     NSI_initialization_complete = true;
+    
+     // wait for other components to complete initialization
+     while ( (system_is_shutting_down == false) &&
+     (ready_to_work == false))
+     {
+         sleep(A_SHORT_TIME);
+     }
+     // ready to work, check for system shutdown flag periodically
+     while (system_is_shutting_down == false) {
+     //do a chunk of work and/or sleep for a short time
+         
+     /* Upon fatal failure, set ready_to_work = true and
+     then call NSIcleanupExit( )*/
+
+    
+     //NSIcleanupExit();
+     // wait for all threads to have exited then returns
+     }
     return;
 }
 
-void *BHM_routine() {
+/*
+*
+*/
+void *Zigbee_routine(){
 
+}
+
+void *address_map_manager(){
+    //gateway info
+    unsigned zigbee_macaddr;
+    coordinates gateway_coordinates;
+    char * gateway_loc_description;
+    double gateway_barcode;
+    
+    //initialize address table
+    struct address_map beacon_address [MAX_NUMBER_NODES];
+    beacon_join_request(zigbee_macaddr, gateway_coordinates,
+                        gateway_loc_description, gateway_barcode);
+    while(system_is_shutting_down == false){
+        
+        //if a new join request||(beacon_count>=32)
+        //then beacon_count++;
+        //startthread(beacon_join_request());
+        
+    }
     return;
 }
 
-void *CommUnit_routine()
- {
-   
+void *beacon_join_request(unsigned ID,coordinates Coordinates,
+                         char *Loc_Description[MAX_LENGTH_LOC_DESCRIPTION]
+                         ,double Barcode){
+
+    beacon_address[beacon_count-1].network_address = beacon_count-1;//tempt
+    beacon_address[beacon_count-1].beacon_id = ID;
+    beacon_address[beacon_count-1].beacon_coordinates = Coordinates;
+    beacon_address[beacon_count-1].loc_description = Loc_Description;
+    beacon_address[beacon_count-1].beacon_barcode = Barcode;
+}
+
+void *BHM_routine(){
+
+    for (int i = 0; i<MAX_NUMBER_NODES; i++) {
+        /* Default value is true; If beacon is failed, then set to false */
+        health_report[i] = true;
+    }
+    // when initialization completes,
+    BHM_initialization_complete = true;
+     while (system_is_shutting_down == false) {
+    //    do a chunk of work and/or sleep for a short time
+         RFHR();
+         sleep(PERIOD_TO_MONITOR);
+    }
+    BHM_cleanup_exit();
+    return;
+}
+
+void RFHR(){
+
+    int scan_number = 0;
+     /*check beacons one by one. Default value is true; If beacon is failed,
+     then set to false */
+    for(int i = 0; i< MAX_NUMBER_NODES ; i++){
+        scan_number++;
+        //startthread(send_command_to_beacon)
+        //Send signal to the beacon according beaconID
+        //Wait till the beacon sends back the health report
+        
+        if(scan_number == beacon_count)break;
+    }
+}
+
+void *CommUnit_routine(){
+
+    inti_Command_Queue();
+    //when initialization completes,
+    CommUnit_initialization_complete = true;
+    while (system_is_shutting_down == false) {
+     //   do a chunk of work and/or sleep for a short time
+            }
+    CommUnit_cleanup_exit();
     return;
  }
 
+void inti_Command_Queue(){
+    ront = rear = (Command*) malloc(sizeof(Command));
+    front->next = rear->next = NULL;
+}
 
 Error_code startThread(pthread_t threads ,void * (*thfunct)(void*), void *arg){
 
@@ -97,7 +240,6 @@ Error_code startThread(pthread_t threads ,void * (*thfunct)(void*), void *arg){
 
 }
 
-
 void cleanup_exit(){
 
     ready_to_work = false;
@@ -111,7 +253,12 @@ void cleanup_exit(){
 
 }
 
+void error(char * msg){
 
+    perror(msg);
+    exit(0);
+    
+}
 
 int main(int argc, char **argv)
 {

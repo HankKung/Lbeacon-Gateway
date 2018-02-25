@@ -84,6 +84,28 @@
 
 #define COORDINATE_LENGTH 64
 
+#define A_SHORT_TIME 1000
+
+#define A_LONG_TIME 5000
+
+
+/*
+* ENUM
+*/
+
+enum command_request {
+    /* Request for health report */
+    RFHR = 0,
+    /**/
+    BEACON_JOIN_REQUEST = 1,
+    /* Server web sends coordinates of the beacon */
+    SET_BEACON_COORDINATES = 2,
+    /**/
+    REMOVE_BEACON = 3,
+    /**/
+    GET_BEACON_INFO = 4
+};
+
 /*
 * TYPEDEF STRUCTS
 */
@@ -107,6 +129,23 @@ typedef struct address_map {
 
 }Address_map;
 
+// an array of address maps
+extern struct address_map beacon_address [MAX_NUMBER_NODES];
+
+/* Command format in the queue */
+typedef struct command{
+    /* Command kind */
+    enum command_request command_kind;
+    /* If the command is from server, set 0; Otherwise, BeaconID(Table in NSI Module) */
+    int sender_ID;
+    /* Command Priority */
+    int priority;
+    /* Point to the next command in the queue */
+    struct command *next;
+}Command;
+
+
+Command *front, *rear;
 
 /*
 * GLOBAL VARIABLES
@@ -135,8 +174,12 @@ bool CommUnit_initialization_complete;
 /* An array of address maps */
 Address_map beacon_address[MAX_NUMBER_NODES];
 
+//current number of beacons
+int beacon_count;
+// NSI is the only writer of beacon_address; it has many readers.
+bool Beacon_address_lock;
 
-
+bool health_report[MAX_NUMBER_NODES];
 
 
 
@@ -155,6 +198,112 @@ Address_map beacon_address[MAX_NUMBER_NODES];
 *  system_time - system time in milliseconds
 */
 long long get_system_time();
+
+/* coordinator initializes the zigbee network:
+- if (PAN ID == 0) scan nearby network and chooses a PAN ID;
+- channel scan to find a good operating channel;
+- ready to access join requests from Lbeacons;
+/* Set up Zigbee connection by calling Zigbee_routine in LBeacon_Zigbee.h */
+void *NSI_routine();
+
+/*
+*
+*/
+void *Zigbee_routine();
+
+/*
+*  addrss_map_manager:
+*
+*  This function initializes and mainains the table which stores the information
+*  of each Lbeacon. Keep monitoring if there's a new beacon send the command to
+*  join the gateway. And if there is, call beacon_join_request(). At the
+*  meanwhile, it also counts the current number of beacons in this gateway
+*  coverage.
+*
+*  Parameters:
+*
+*  None
+*
+*  Return value:
+*
+*  O
+*/
+int address_map_manager();
+
+/*
+*  beacon_join_request:
+*  This function is executed when a beacon sends command to join the gateway
+*  and fills the table with the inputs. And set the network_address according
+*  the current number of beacons.
+*
+*  Parameters:
+*
+*  ID -
+*  Coordinates -
+*  Loc_Description[MAX_LENGTH_LOC_DESCRIPTION -
+*  Barcode -
+*
+*  Return value:
+*
+*  None
+*/
+void *beacon_join_request(unsigned ID,coordinates Coordinates,
+                         char *Loc_Description[MAX_LENGTH_LOC_DESCRIPTION]
+                         ,double Barcode);
+
+/*
+*  BHM_routine:
+*
+*  This function initializes the table to record beacon health. After then,
+*  keep maintaining the table which stores the beacons health state currently.
+*
+*  Parameters:
+*
+*  Node
+*
+*  Return value:
+*
+*  None
+*/
+void *BHM_routine();
+
+/*
+*  RFHR
+*
+*  Request For Health Report. This function scans each beacon in the gateway by
+*  sending Zigbee singal to detect. If times to scan beacon successfully equals
+*  the total beacon number then break.
+*
+*  Parameters:
+*
+*  Node
+*
+*  Return value:
+*
+*  None
+*/
+void RFHR();
+
+/*
+*  CommUnit_routine:
+*/
+void *CommUnit_routine()
+
+/*
+*  inti_Command_Queu:
+*
+*  This function initializes the queue which contains the commands sent from
+*  server and beacons.
+*
+*  Parameters:
+*
+*  Node
+*
+*  Return value:
+*
+*  None
+*/
+void inti_Command_Queue();
 
 /*
 *  startThread:
@@ -187,3 +336,11 @@ Error_code startThread(pthread_t threads, void * (*thfunct)(void*), void *arg);
 *  None
 */
 void cleanup_exit();
+
+/*
+*
+*/
+void error(char * msg){
+    perror(msg);
+    exit(0);
+}
