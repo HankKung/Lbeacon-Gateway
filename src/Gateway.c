@@ -136,13 +136,6 @@ void *NSI_routine(){
     return;
 }
 
-/*
-*
-*/
-void *Zigbee_routine(){
-
-}
-
 void *address_map_manager(){
     //gateway info
     unsigned zigbee_macaddr;

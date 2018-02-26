@@ -44,7 +44,8 @@
 #include <xbee.h>
 #include "LBeacon_Zigbee_Gateway.h"
 
-int main(void) {
+void *Zigbee_routine()
+{
 	
 	struct xbee *xbee;
 	

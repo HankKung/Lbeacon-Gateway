@@ -64,6 +64,7 @@
 #include <sys/timeb.h>
 #include <time.h>
 #include <unistd.h>
+#include "Lbeacon_Zigbee_Gateway.h"
 
 
 /* 
@@ -207,11 +208,6 @@ long long get_system_time();
 void *NSI_routine();
 
 /*
-*
-*/
-void *Zigbee_routine();
-
-/*
 *  addrss_map_manager:
 *
 *  This function initializes and mainains the table which stores the information
@@ -344,3 +340,4 @@ void error(char * msg){
     perror(msg);
     exit(0);
 }
+

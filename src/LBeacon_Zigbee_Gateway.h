@@ -84,6 +84,11 @@ typedef struct pkt pPkt;
 // rear  point to the end of the Pkt Queue
 pPkt *front, *rear;
 
+/*
+*
+*/
+void *Zigbee_routine();
+
 /* Connector for setup xbee connection 
  *
  * conMode:
