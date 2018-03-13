@@ -75,26 +75,25 @@ void *NSI_routine(){
     }
     
     /* Socket Set Up */
-    int sock, length;
-    struct sockaddr_in server, from;
-    struct hostent *hp;
-    char * buffer[BUFFER_SIZE];
+    struct sockaddr_in si_other;
+    int s, i, slen=sizeof(si_other);
+    char buf[BUFLEN];
+    char message[BUFLEN];
     
-    sock = socket(PF_INET, SOCK_DGRAM, 0);
-    if(sock < 0)
+    if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
         error("Wrong Socket");
     }
-    server.sin_family = AF_INET;
-    hp = gethostbyname(argv[1]);
-    if(hp == 0)
+
+    memset((char *) &si_other, 0, sizeof(si_other));
+    si_other.sin_family = AF_INET;
+    si_other.sin_port = htons(PORT);
+     
+    if (inet_aton(SERVER , &si_other.sin_addr) == 0) 
     {
-        error("Unknown Host");
+        fprintf(stderr, "inet_aton() failed\n");
+        exit(1);
     }
-    bcopy((char *)hp->h_addr, (char *)&server.sin_addr, hp->h_length);
-    server.sin_port = htons(atoi(argv[2]));
-    length = sizeof(struct sockaddr_in);
-    bzero(buffer, BUFFER_SIZE);
 
     // make sure WiFi has been correctly configured ....
     int ping_ret, status;
@@ -122,17 +121,39 @@ void *NSI_routine(){
      {
          sleep(A_SHORT_TIME);
      }
+
      // ready to work, check for system shutdown flag periodically
      while (system_is_shutting_down == false) {
      //do a chunk of work and/or sleep for a short time
+        printf("Enter message : ");
+        gets(message);
          
-     /* Upon fatal failure, set ready_to_work = true and
-     then call NSIcleanupExit( )*/
-
-    
-     //NSIcleanupExit();
-     // wait for all threads to have exited then returns
+        //send the message
+        if (sendto(s, message, strlen(message) , 0 , (struct sockaddr *) &si_other, slen)==-1)
+        {
+            die("sendto()");
+        }
+         
+        //receive a reply and print it
+        //clear the buffer by filling null, it might have previously received data
+        memset(buf,'\0', BUFLEN);
+        //try to receive some data, this is a blocking call
+        if (recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen) == -1)
+        {
+            die("recvfrom()");
+        }
+         
+        puts(buf);
+     
+     sleep(A_SHORT_TIME);
      }
+
+    close(s);
+    /* Upon fatal failure, set ready_to_work = true and
+    then call NSIcleanupExit( )*/
+
+    //NSIcleanupExit();
+    // wait for all threads to have exited then returns
     return;
 }
 
@@ -200,22 +221,6 @@ void RFHR(){
     }
 }
 
-void *CommUnit_routine(){
-
-    inti_Command_Queue();
-    //when initialization completes,
-    CommUnit_initialization_complete = true;
-    while (system_is_shutting_down == false) {
-     //   do a chunk of work and/or sleep for a short time
-            }
-    CommUnit_cleanup_exit();
-    return;
- }
-
-void inti_Command_Queue(){
-    ront = rear = (Command*) malloc(sizeof(Command));
-    front->next = rear->next = NULL;
-}
 
 Error_code startThread(pthread_t threads ,void * (*thfunct)(void*), void *arg){
 
