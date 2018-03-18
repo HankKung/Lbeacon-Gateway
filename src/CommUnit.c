@@ -57,8 +57,8 @@ void *CommUnit_routine(){
  }
 
 void inti_Command_Queue(){
-//    ront = rear = (Command*) malloc(sizeof(Command));
-//    front->next = rear->next = NULL;
+    front = rear = (Command*) malloc(sizeof(Command));
+    front->next = rear->next = NULL;
 }
 
 void RFHR(){
