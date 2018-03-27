@@ -44,7 +44,7 @@
 * ENUM
 */
 
-enum command_request {
+typedef enum commandrequest {
     /* Request for health report */
     RFHR = 0,
     /**/
@@ -55,22 +55,35 @@ enum command_request {
     REMOVE_BEACON = 3,
     /**/
     GET_BEACON_INFO = 4
-};
+}CommandRequest;
 
 /* Command format in the queue */
-typedef struct command{
+typedef struct Zigbeebuffer{
     /* Command kind */
-    enum command_request command_kind;
+    CommandRequest command_kind;
     /* If the command is from server, set 0; Otherwise, BeaconID(Table in NSI Module) */
-    int sender_ID;
-    /* Command Priority */
-    int priority;
+    int beaconID;
+    /* The targeted Beacon ID */
+    void *data;
     /* Point to the next command in the queue */
-    struct command *next;
-}Command;
+    void *next;
+}ZigbeeBuffer;
 
 
-Command *front, *rear;
+/**/
+typedef struct UDPbuffer{
+    /**/
+    char *commandName;
+    /**/
+    int beaconID;
+    /**/
+    void *data;
+    /**/
+    void *next;
+}UDPBuffer;
+
+ZigbeeBuffer *zigbee_front, *zigbee_rear;
+UDPBuffer *udp_front, *udp_rear;
 
 extern bool CommUnit_initialization_complete;
 
@@ -83,7 +96,7 @@ extern bool system_is_shutting_down;
 void *CommUnit_routine();
 
 /*
-*  inti_Command_Queu:
+*  init_zigbee_buffer:
 *
 *  This function initializes the queue which contains the commands sent from
 *  server and beacons.
@@ -96,7 +109,23 @@ void *CommUnit_routine();
 *
 *  None
 */
-void inti_Command_Queue();
+void init_zigbee_buffer();
+
+/*
+*  init_udp_buffer:
+*
+*  This function initializes the queue which contains the commands sent from
+*  server and beacons.
+*
+*  Parameters:
+*
+*  Node
+*
+*  Return value:
+*
+*  None
+*/
+void init_udp_buffer();
 
 /*
 *  RFHR
@@ -114,3 +143,13 @@ void inti_Command_Queue();
 *  None
 */
 void RFHR();
+
+/*
+*
+*/
+void *Dequeue(void *commandQueue);
+
+/*
+*
+*/
+void Enqueue(void *queueFront, void *queueRear, void *item);

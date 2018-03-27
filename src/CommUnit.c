@@ -41,7 +41,8 @@
 
 void *CommUnit_routine(){
 
-    inti_Command_Queue();
+    init_zigbee_buffer(zigbee_front,zigbee_rear);
+    init_udp_buffer(udp_front,udp_rear);
     //when initialization completes,
     CommUnit_initialization_complete = true;
     while (system_is_shutting_down == false) {
@@ -56,11 +57,26 @@ void *CommUnit_routine(){
     return;
  }
 
-void inti_Command_Queue(){
-    front = rear = (Command*) malloc(sizeof(Command));
+void init_zigbee_buffer(ZigbeeBuffer *front, ZigbeeBuffer *rear){
+    front = rear = (ZigbeeBuffer*) malloc(sizeof(ZigbeeBuffer));
+    front->next = rear->next = NULL;
+}
+
+void init_udp_buffer(UDPBuffer *front, UDPBuffer *rear){
+    front = rear = (ZigbeeBuffer*) malloc(sizeof(ZigbeeBuffer));
     front->next = rear->next = NULL;
 }
 
 void RFHR(){
+
+}
+
+void *Dequeue(void * commandQueue){
+
+
+}
+
+void Enqueue(void *queueFront, void *queueRear, void *item){
+
 
 }
