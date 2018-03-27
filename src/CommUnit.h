@@ -13,8 +13,16 @@
 *
 * File Description:
 *
-*      
-*
+*       Communication unit: In the alpha version,the sole function of this 
+*       component is to support the communication of NSI and BHM with location 
+*       beacons and the BeDIS server. (In a later version that contains iGaD,
+*       this components also receives commands from iGaD in the gateway and 
+*       the BeDIS server and broadcasts the commands tolocal LBeacons.) 
+*       Messages exchange happens in CommUnit. This file contain the 
+*       formats of every kind of message and the buffers which store 
+*       messages.And provide with functions which are executed according 
+*       the messages received.
+*       
 * File Name:
 *
 *     CommUnit.h
@@ -40,6 +48,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define A_SHORT_TIME 1000
+#define A_LONG_TIME 5000
+
 /*
 * ENUM
 */
@@ -58,7 +69,7 @@ typedef enum commandrequest {
 }CommandRequest;
 
 /* Command format in the queue */
-typedef struct Zigbeebuffer{
+typedef struct zigbeebuffer{
     /* Command kind */
     CommandRequest command_kind;
     /* If the command is from server, set 0; Otherwise, BeaconID(Table in NSI Module) */
@@ -67,11 +78,11 @@ typedef struct Zigbeebuffer{
     void *data;
     /* Point to the next command in the queue */
     void *next;
-}ZigbeeBuffer;
+}Zigbeebuffer;
 
 
 /**/
-typedef struct UDPbuffer{
+typedef struct udpbuffer{
     /**/
     char *commandName;
     /**/
@@ -80,10 +91,23 @@ typedef struct UDPbuffer{
     void *data;
     /**/
     void *next;
-}UDPBuffer;
+}UDPbuffer;
 
-ZigbeeBuffer *zigbee_front, *zigbee_rear;
-UDPBuffer *udp_front, *udp_rear;
+Zigbeebuffer *zigbee_front, *zigbee_rear;
+UDPbuffer *udp_front, *udp_rear;
+
+/*
+*   Variables
+*/
+bool zigbee_queue_is_locked;
+bool udp_queue_is_locked;
+bool zigbee_queue_is_empty;
+bool udp_queue_is_empty;
+
+
+/*
+*   External Variables
+*/ 
 
 extern bool CommUnit_initialization_complete;
 
@@ -147,9 +171,19 @@ void RFHR();
 /*
 *
 */
-void *Dequeue(void *commandQueue);
+void zigbee_dequeue(Zigbeebuffer *front, Zigbeebuffer *rear);
 
 /*
 *
 */
-void Enqueue(void *queueFront, void *queueRear, void *item);
+void zigbee_enqueue(Zigbeebuffer *front, Zigbeebuffer *rear, Zigbeebuffer *item);
+
+/*
+*
+*/
+void udp_dequeue(UDPbuffer *front, UDPbuffer *rear);
+
+/*
+*
+*/
+void udp_enqueue(UDPbuffer *front, UDPbuffer *rear, UDPbuffer *item);

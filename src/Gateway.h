@@ -65,6 +65,7 @@
 #include <time.h>
 #include <unistd.h>
 #include "Lbeacon_Zigbee_Gateway.h"
+#include "CommUnit.h"
 
 
 /* 
@@ -89,23 +90,8 @@
 
 #define A_LONG_TIME 5000
 
-
-/*
-* ENUM
-*/
-
-enum command_request {
-    /* Request for health report */
-    RFHR = 0,
-    /**/
-    BEACON_JOIN_REQUEST = 1,
-    /* Server web sends coordinates of the beacon */
-    SET_BEACON_COORDINATES = 2,
-    /**/
-    REMOVE_BEACON = 3,
-    /**/
-    GET_BEACON_INFO = 4
-};
+/* UDP connection buffer in gateway */
+#define BUFFER_SIZE 1024
 
 /*
 * TYPEDEF STRUCTS
@@ -129,24 +115,6 @@ typedef struct address_map {
 
 
 }Address_map;
-
-// an array of address maps
-extern struct address_map beacon_address [MAX_NUMBER_NODES];
-
-/* Command format in the queue */
-typedef struct command{
-    /* Command kind */
-    enum command_request command_kind;
-    /* If the command is from server, set 0; Otherwise, BeaconID(Table in NSI Module) */
-    int sender_ID;
-    /* Command Priority */
-    int priority;
-    /* Point to the next command in the queue */
-    struct command *next;
-}Command;
-
-
-Command *front, *rear;
 
 /*
 * GLOBAL VARIABLES
@@ -262,44 +230,6 @@ void *beacon_join_request(unsigned ID,coordinates Coordinates,
 *  None
 */
 void *BHM_routine();
-
-/*
-*  RFHR
-*
-*  Request For Health Report. This function scans each beacon in the gateway by
-*  sending Zigbee singal to detect. If times to scan beacon successfully equals
-*  the total beacon number then break.
-*
-*  Parameters:
-*
-*  Node
-*
-*  Return value:
-*
-*  None
-*/
-void RFHR();
-
-/*
-*  CommUnit_routine:
-*/
-void *CommUnit_routine()
-
-/*
-*  inti_Command_Queu:
-*
-*  This function initializes the queue which contains the commands sent from
-*  server and beacons.
-*
-*  Parameters:
-*
-*  Node
-*
-*  Return value:
-*
-*  None
-*/
-void inti_Command_Queue();
 
 /*
 *  startThread:
