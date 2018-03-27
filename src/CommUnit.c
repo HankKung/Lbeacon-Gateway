@@ -92,13 +92,22 @@ void RFHR(){
 }
 
 void zigbee_dequeue(Zigbeebuffer *front, Zigbeebuffer *rear){
+
+    /* Wait for the turn */
+    while(zigbee_queue_is_locked){
+        sleep(A_SHORT_TIME);
+    }
+    zigbee_queue_is_locked = true;
     if(front==rear){
         //printf("Zigbee queue is empty currently, can not dequeue anymore");
         zigbee_queue_is_empty = true;
+        zigbee_queue_is_locked = false;
         return;
     }   
     /* Execute function according the command name */
 
+    /* Free the control*/
+    zigbee_queue_is_locked = false;
 }
 
 void zigbee_enqueue(Zigbeebuffer *front, Zigbeebuffer *rear, Zigbeebuffer *item){
@@ -109,14 +118,23 @@ void zigbee_enqueue(Zigbeebuffer *front, Zigbeebuffer *rear, Zigbeebuffer *item)
 }
 
 void udp_dequeue(UDPbuffer *front, UDPbuffer *rear){
+    /* Wait for the turn */
+    while(udp_queue_is_locked){
+        sleep(A_SHORT_TIME);
+    }
+    udp_queue_is_locked = true;
     if(front==rear){
         //printf("UDP queue is empty currently, can not dequeue anymore");
         udp_queue_is_empty = true;
+        udp_queue_is_locked = false;
         return;
     }
 
     /* Execute function according the command name */
+    //
 
+    /* Free the control*/
+    udp_queue_is_locked = false;
 }
 
 void udp_enqueue(UDPbuffer *front, UDPbuffer *rear, UDPbuffer *item){
