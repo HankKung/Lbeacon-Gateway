@@ -39,7 +39,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <xbee.h>
+#include "libxbee3\xbee.h"
 
 const char *xbee_mode = "xbeeZB";
 
