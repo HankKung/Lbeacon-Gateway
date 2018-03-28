@@ -75,7 +75,7 @@ struct pkt {
 	
 	// Data
 	char *content;          
-    	struct pkt *next; 
+    struct pkt *next; 
 }; 
 
 typedef struct pkt pPkt;

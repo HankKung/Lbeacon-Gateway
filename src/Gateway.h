@@ -116,6 +116,7 @@ typedef struct address_map {
 
 }Address_map;
 
+Address_map addressMap;
 /*
 * GLOBAL VARIABLES
 */

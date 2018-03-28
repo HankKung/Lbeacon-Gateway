@@ -436,7 +436,7 @@ void addpkt(char *raw_addr, char *type,char *content ) {
 	rear = newpkt; 
 } 
 
-/* A function for delete a sended Packet in queue                            */
+/* A function for delete a sended Packet in queue */
 void delq() {
 	pPkt* tmpnode; 
 

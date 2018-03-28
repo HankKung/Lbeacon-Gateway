@@ -68,6 +68,11 @@ void *CommUnit_routine(){
                 printf("Zigbee dequeue failure");
             if (startThead (udp_dequeue()) != WORK_SCUCESSFULLY)
                 printf("UDP dequeue failure");
+
+            if (startThead (zigbee_enqueue()) != WORK_SCUCESSFULLY)
+                printf("Zigbee enqueue failure");
+            if (startThead (udp_enqueue()) != WORK_SCUCESSFULLY)
+                printf("UDP enqueue failure");
         }
         else sleep(A_SHORT_TIME);
         

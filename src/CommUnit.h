@@ -71,7 +71,7 @@ typedef enum commandrequest {
 /* Command format in the queue */
 typedef struct zigbeebuffer{
     /* Command kind */
-    CommandRequest command_kind;
+    CommandRequest command_name;
     /* If the command is from server, set 0; Otherwise, BeaconID(Table in NSI Module) */
     int beaconID;
     /* The targeted Beacon ID */
@@ -84,7 +84,7 @@ typedef struct zigbeebuffer{
 /**/
 typedef struct udpbuffer{
     /**/
-    char *commandName;
+    CommandRequest command_name;
     /**/
     int beaconID;
     /**/

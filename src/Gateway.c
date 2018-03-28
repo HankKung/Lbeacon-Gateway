@@ -149,9 +149,9 @@ void *NSI_routine(){
      }
 
     close(s);
-    /* Upon fatal failure, set ready_to_work = true and
+    /* Upon fatal failure, set ready_to_work = false and
     then call NSIcleanupExit( )*/
-
+    ready_to_work = false;
     //NSIcleanupExit();
     // wait for all threads to have exited then returns
     return;
@@ -165,7 +165,7 @@ void *address_map_manager(){
     double gateway_barcode;
     
     //initialize address table
-    struct address_map beacon_address [MAX_NUMBER_NODES];
+    static struct address_map beacon_address [MAX_NUMBER_NODES];
     beacon_join_request(zigbee_macaddr, gateway_coordinates,
                         gateway_loc_description, gateway_barcode);
     while(system_is_shutting_down == false){
@@ -199,9 +199,10 @@ void *BHM_routine(){
     BHM_initialization_complete = true;
      while (system_is_shutting_down == false) {
     //    do a chunk of work and/or sleep for a short time
-         RFHR();
+         //RFHR();
          sleep(PERIOD_TO_MONITOR);
     }
+    ready_to_work = false;
     BHM_cleanup_exit();
     return;
 }
