@@ -94,7 +94,9 @@ typedef struct udpbuffer{
 }UDPbuffer;
 
 Zigbeebuffer *zigbee_front, *zigbee_rear;
+Zigbeebuffer *Zbuffer;
 UDPbuffer *udp_front, *udp_rear;
+UDPbuffer *Ubuffer;
 
 /*
 *   Variables

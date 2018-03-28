@@ -79,17 +79,23 @@ void *CommUnit_routine(){
 
         }
     CommUnit_cleanup_exit();
+    free(Zbuffer);
+    free(Ubuffer);
     return;
  }
 
 void init_zigbee_buffer(Zigbeebuffer *front, Zigbeebuffer *rear){
-    front = rear = (Zigbeebuffer*) malloc(sizeof(Zigbeebuffer));
-    front->next = rear->next = NULL;
+    //front = rear = (Zigbeebuffer*) malloc(sizeof(Zigbeebuffer));
+    //front->next = rear->next = NULL;
+    Zigbeebuffer *Zbuffer = (Zigbeebuffer*) malloc(sizeof(Zigbeebuffer)*BUFFER_SIZE);
+    front = rear = Zbuffer;
 }
 
 void init_udp_buffer(UDPbuffer *front, UDPbuffer *rear){
-    front = rear = (UDPbuffer*) malloc(sizeof(UDPbuffer));
-    front->next = rear->next = NULL;
+    //front = rear = (UDPbuffer*) malloc(sizeof(UDPbuffer));
+    //front->next = rear->next = NULL;
+    UDPbuffer *Ubuffer = (UDPbuffer*) malloc(sizeof(UDPbuffer)*BUFFER_SIZE);
+    front = rear = Ubuffer;
 }
 
 void RFHR(){
@@ -119,7 +125,6 @@ void zigbee_enqueue(Zigbeebuffer *front, Zigbeebuffer *rear, Zigbeebuffer *item)
     //if()
 
     /* Set flag true anyway */
-
 }
 
 void udp_dequeue(UDPbuffer *front, UDPbuffer *rear){
@@ -134,7 +139,6 @@ void udp_dequeue(UDPbuffer *front, UDPbuffer *rear){
         udp_queue_is_locked = false;
         return;
     }
-
     /* Execute function according the command name */
     //
 
