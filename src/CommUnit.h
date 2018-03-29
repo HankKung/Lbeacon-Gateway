@@ -93,9 +93,9 @@ typedef struct udpbuffer{
     void *next;
 }UDPbuffer;
 
-Zigbeebuffer *zigbee_front, *zigbee_rear;
+//Zigbeebuffer *zigbee_front, *zigbee_rear;
 Zigbeebuffer *Zbuffer;
-UDPbuffer *udp_front, *udp_rear;
+//UDPbuffer *udp_front, *udp_rear;
 UDPbuffer *Ubuffer;
 
 /*
@@ -105,6 +105,9 @@ bool zigbee_queue_is_locked;
 bool udp_queue_is_locked;
 bool zigbee_queue_is_empty;
 bool udp_queue_is_empty;
+
+int *zigbeeQueueFront, *zigbeeQueueRear;
+int *udpQueueFront, *udpQueueRear;
 
 
 /*
@@ -173,19 +176,19 @@ void RFHR();
 /*
 *
 */
-void zigbee_dequeue(Zigbeebuffer *front, Zigbeebuffer *rear);
+void *zigbee_dequeue(int *front, int *rear);
 
 /*
 *
 */
-void zigbee_enqueue(Zigbeebuffer *front, Zigbeebuffer *rear, Zigbeebuffer *item);
+void zigbee_enqueue(int *front, int *rear, Zigbeebuffer *item);
 
 /*
 *
 */
-void udp_dequeue(UDPbuffer *front, UDPbuffer *rear);
+void *udp_dequeue(int *front, int *rear);
 
 /*
 *
 */
-void udp_enqueue(UDPbuffer *front, UDPbuffer *rear, UDPbuffer *item);
+void udp_enqueue(int *front, int *rear, UDPbuffer *item);

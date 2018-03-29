@@ -84,33 +84,29 @@ void *CommUnit_routine(){
     return;
  }
 
-void init_zigbee_buffer(Zigbeebuffer *front, Zigbeebuffer *rear){
-    //front = rear = (Zigbeebuffer*) malloc(sizeof(Zigbeebuffer));
-    //front->next = rear->next = NULL;
+void init_zigbee_buffer(int *front, int *rear){
     Zigbeebuffer *Zbuffer = (Zigbeebuffer*) malloc(sizeof(Zigbeebuffer)*BUFFER_SIZE);
-    front = rear = Zbuffer;
+    *front = *rear = -1; 
 }
 
-void init_udp_buffer(UDPbuffer *front, UDPbuffer *rear){
-    //front = rear = (UDPbuffer*) malloc(sizeof(UDPbuffer));
-    //front->next = rear->next = NULL;
+void init_udp_buffer(int *front, int *rear){
     UDPbuffer *Ubuffer = (UDPbuffer*) malloc(sizeof(UDPbuffer)*BUFFER_SIZE);
-    front = rear = Ubuffer;
+    *front = *rear = -1;
 }
 
 void RFHR(){
 
 }
 
-void zigbee_dequeue(Zigbeebuffer *front, Zigbeebuffer *rear){
+void *zigbee_dequeue(int *front, int *rear){
 
-    /* Wait for the turn */
+    /* Wait for the turn to use the queue */
     while(zigbee_queue_is_locked){
         sleep(A_SHORT_TIME);
     }
     zigbee_queue_is_locked = true;
-    if(front==rear){
-        //printf("Zigbee queue is empty currently, can not dequeue anymore");
+    if(*front == *rear){
+        printf("Zigbee queue is empty currently, can not dequeue anymore");
         zigbee_queue_is_empty = true;
         zigbee_queue_is_locked = false;
         return;
@@ -121,19 +117,31 @@ void zigbee_dequeue(Zigbeebuffer *front, Zigbeebuffer *rear){
     zigbee_queue_is_locked = false;
 }
 
-void zigbee_enqueue(Zigbeebuffer *front, Zigbeebuffer *rear, Zigbeebuffer *item){
-    //if()
-
+void zigbee_enqueue(int *front, int *rear, Zigbeebuffer *item){
+    /* Wait for the turn to use the queue */
+    while(zigbee_queue_is_locked){
+        sllep(A_SHORT_TIME);
+    }
+    zigbee_queue_is_locked = true;
+    /* If buffer is full currently then just skip Enqueue till there's
+    room for it.P.S. Overflow problem will got solved later */
+    if( (*front == *rear + 1) || (*front == 0 && *rear == BUFFER_SIZE-1))
+    return;
+    /* *front is -1 when the buffer is empty */
+    if(*front == -1) *front = 0;
+    *rear = (*rear + 1) % BUFFER_SIZE;
+    Zbuffer[rear] = *item;
     /* Set flag true anyway */
+    zigbee_queue_is_locked = false;
 }
 
-void udp_dequeue(UDPbuffer *front, UDPbuffer *rear){
+void *udp_dequeue(int *front, int *rear){
     /* Wait for the turn */
     while(udp_queue_is_locked){
         sleep(A_SHORT_TIME);
     }
     udp_queue_is_locked = true;
-    if(front==rear){
+    if(*front == *rear){
         //printf("UDP queue is empty currently, can not dequeue anymore");
         udp_queue_is_empty = true;
         udp_queue_is_locked = false;
@@ -146,8 +154,20 @@ void udp_dequeue(UDPbuffer *front, UDPbuffer *rear){
     udp_queue_is_locked = false;
 }
 
-void udp_enqueue(UDPbuffer *front, UDPbuffer *rear, UDPbuffer *item){
-
-
+void udp_enqueue(int *front, int *rear, UDPbuffer *item){
+    /* Wait for the turn to use the queue */
+    while(udp_queue_is_locked){
+        sllep(A_SHORT_TIME);
+    }
+    udp_queue_is_locked = true;
+    /* If buffer is full currently then just skip Enqueue till there's
+    room for it.P.S. Overflow problem will got solved later */
+    if( (*front == *rear + 1) || (*front == 0 && *rear == BUFFER_SIZE-1))
+    return;
+    /* *front is -1 when the buffer is empty */
+    if(*front == -1) *front = 0;
+    *rear = (*rear + 1) % BUFFER_SIZE;
+    Ubuffer[rear] = *item;
     /* Set flag true anyway */
+    udp_queue_is_locked = false;
 }
