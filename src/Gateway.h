@@ -53,6 +53,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <signal.h>
 #include <string.h>
 #include <semaphore.h>
@@ -103,12 +104,11 @@ typedef struct coordinates {
   char Y_coordinates[COORDINATE_LENGTH];
   char Z_coordinates[COORDINATE_LENGTH];
 
-
 }Coordinates;
 
 typedef struct address_map {
 
-  char network_address[NETWORK_ADD_LENGTH];
+  init16_t network_address[NETWORK_ADD_LENGTH];
   char beacon_uuid[UUID_LENGTH];
   Coordinates beacon_coordinates;
   char loc_description[MAX_LENGTH_LOC_DESCRIPTION];
