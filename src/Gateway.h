@@ -94,11 +94,14 @@
 /* UDP connection buffer in gateway */
 #define BUFFER_SIZE 1024
 
+/* The time intervial between each beacon health self-testing */
+#define PERIOD_TO_MONITOR 1000*100
+
 /*
 * TYPEDEF STRUCTS
 */
 
-typedef struct coordinates {
+typedef struct{
 
   char X_coordinates[COORDINATE_LENGTH];
   char Y_coordinates[COORDINATE_LENGTH];
@@ -106,7 +109,7 @@ typedef struct coordinates {
 
 }Coordinates;
 
-typedef struct address_map {
+typedef struct{
 
   init16_t network_address[NETWORK_ADD_LENGTH];
   char beacon_uuid[UUID_LENGTH];
@@ -116,7 +119,7 @@ typedef struct address_map {
 
 }Address_map;
 
-Address_map addressMap;
+Address_map
 /*
 * GLOBAL VARIABLES
 */
@@ -179,7 +182,7 @@ void *NSI_routine();
 /*
 *  addrss_map_manager:
 *
-*  This function initializes and mainains the table which stores the information
+*  This function initializes the table which stores the information
 *  of each Lbeacon. Keep monitoring if there's a new beacon send the command to
 *  join the gateway. And if there is, call beacon_join_request(). At the
 *  meanwhile, it also counts the current number of beacons in this gateway
@@ -212,7 +215,7 @@ int address_map_manager();
 *
 *  None
 */
-void *beacon_join_request(unsigned ID,coordinates Coordinates,
+void *beacon_join_request(int index, unsigned ID,Coordinates Beacon_Coordinates,
                          char *Loc_Description[MAX_LENGTH_LOC_DESCRIPTION]
                          ,double Barcode);
 

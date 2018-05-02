@@ -121,10 +121,13 @@ void *NSI_routine(){
      {
          sleep(A_SHORT_TIME);
      }
-
+    
      // ready to work, check for system shutdown flag periodically
      while (system_is_shutting_down == false) {
-     //do a chunk of work and/or sleep for a short time
+
+         //if
+
+        //do a chunk of work and/or sleep for a short time
         printf("Enter message : ");
         gets(message);
          
@@ -164,34 +167,32 @@ void *address_map_manager(){
     char * gateway_loc_description;
     double gateway_barcode;
     
-    //initialize address table
-    static struct address_map beacon_address [MAX_NUMBER_NODES];
-    beacon_join_request(zigbee_macaddr, gateway_coordinates,
+    //Fill the gateway information into the address table
+    //Gateway's index is always 0
+    beacon_join_request(0, zigbee_macaddr, gateway_coordinates,
                         gateway_loc_description, gateway_barcode);
     while(system_is_shutting_down == false){
         
-        //if a new join request||(beacon_count>=32)
-        //then beacon_count++;
+        //if a new join request && (beacon_count>=32)
         //startthread(beacon_join_request());
-        
     }
     return;
 }
 
-void *beacon_join_request(unsigned ID,coordinates Coordinates,
+void *beacon_join_request(int index, unsigned ID,Coordinates Beacon_Coordinates,
                          char *Loc_Description[MAX_LENGTH_LOC_DESCRIPTION]
                          ,double Barcode){
 
-    beacon_address[beacon_count-1].network_address = beacon_count-1;//tempt
-    beacon_address[beacon_count-1].beacon_id = ID;
-    beacon_address[beacon_count-1].beacon_coordinates = Coordinates;
-    beacon_address[beacon_count-1].loc_description = Loc_Description;
-    beacon_address[beacon_count-1].beacon_barcode = Barcode;
+    beacon_address[index].network_address = index;//tempt
+    beacon_address[index].beacon_uuid = ID;
+    beacon_address[index].beacon_coordinates = Coordinates;
+    beacon_address[index].loc_description = Loc_Description;
+    beacon_address[index].beacon_barcode = Barcode;
 }
 
 void *BHM_routine(){
 
-    for (int i = 0; i<MAX_NUMBER_NODES; i++) {
+    for (int i = 0; i<beacon_count; i++) {
         /* Default value is true; If beacon is failed, then set to false */
         health_report[i] = true;
     }
@@ -199,7 +200,8 @@ void *BHM_routine(){
     BHM_initialization_complete = true;
      while (system_is_shutting_down == false) {
     //    do a chunk of work and/or sleep for a short time
-         //RFHR();
+         //RFHR(); //might return a boolean array
+         //broadcast
          sleep(PERIOD_TO_MONITOR);
     }
     ready_to_work = false;
@@ -212,7 +214,7 @@ void RFHR(){
     int scan_number = 0;
      /*check beacons one by one. Default value is true; If beacon is failed,
      then set to false */
-    for(int i = 0; i< MAX_NUMBER_NODES ; i++){
+    for(int i = 0; i< beacon_count ; i++){
         scan_number++;
         //startthread(send_command_to_beacon)
         //Send signal to the beacon according beaconID
@@ -271,6 +273,8 @@ int main(int argc, char **argv)
     CommUnit_initialization_complete = false;
 
     int return_value;
+
+    Address_map beacon_address [MAX_NUMBER_NODES];
 
     pthread_t NSI_routine_thread;
 
