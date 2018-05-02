@@ -26,3 +26,11 @@
 *      Hank Kung, hank910140@gmail.com
 *      
 */
+
+
+#include "CAP_Alert_Parser.h"
+
+void *cap_parser(void *xlmFile){
+
+
+}

@@ -27,3 +27,8 @@
 *      Hank Kung, hank910140@gmail.com
 *      
 */
+
+#include "./ezxml/ezxml.h"
+
+// 
+void *cap_parser(void *xmlFile);
