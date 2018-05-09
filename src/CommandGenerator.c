@@ -16,21 +16,13 @@
 *
 * File Name:
 *
-*     CAP_Alert_Parser.h
+*     CommandGenerator.c
 *
 * Abstract:
 *
-
 *
 * Authors:
 *
 *      Hank Kung, hank910140@gmail.com
 *      
 */
-
-// Not on the top priority list for now
-
-#include "./ezxml/ezxml.h"
-
-// 
-void *cap_parser(void *xmlFile);

@@ -16,11 +16,10 @@
 *
 * File Name:
 *
-*     CAP_Alert_Parser.h
+*     CommandGenerator.h
 *
 * Abstract:
 *
-
 *
 * Authors:
 *
@@ -28,9 +27,6 @@
 *      
 */
 
-// Not on the top priority list for now
-
-#include "./ezxml/ezxml.h"
-
-// 
-void *cap_parser(void *xmlFile);
+//provide with lots of policies to devide wich command
+//should be generator in specific situation. Then enqueue the 
+//command to queue in CommUnit.
