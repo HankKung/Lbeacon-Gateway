@@ -50,7 +50,7 @@
 
 #define A_SHORT_TIME 1000
 #define A_LONG_TIME 5000
-
+#define BUFFER_SIZE 1024
 /*
 * ENUM
 */
@@ -68,46 +68,65 @@ typedef enum commandrequest {
     GET_BEACON_INFO = 4
 }CommandRequest;
 
-/* Command format in the queue */
-typedef struct zigbeebuffer{
-    /* Command kind */
-    CommandRequest command_name;
-    /* If the command is from server, set 0; Otherwise, BeaconID(Table in NSI Module) */
-    int beaconID;
-    /* The targeted Beacon ID */
-    void *data;
-    /* Point to the next command in the queue */
-    void *next;
-}Zigbeebuffer;
+// /* Command format in the queue */
+// typedef struct zigbeebuffer{
+//     /* Command kind */
+//     CommandRequest command_name;
+//     /* If the command is from server, set 0; Otherwise, BeaconID(Table in NSI Module) */
+//     int beaconID;
+//     /* The targeted Beacon ID */
+//     void *data;
+//     /* Point to the next command in the queue */
+//     void *next;
+// }Zigbeebuffer;
 
 
 /**/
-typedef struct udpbuffer{
-    /**/
-    CommandRequest command_name;
-    /**/
-    int beaconID;
-    /**/
-    void *data;
-    /**/
-    void *next;
-}UDPbuffer;
+// typedef struct udpbuffer{
+//     /**/
+//     CommandRequest command_name;
+//     /**/
+//     int beaconID;
+//     /**/
+//     void *data;
+//     /**/
+//     void *next;
+// }UDPbuffer;
 
-//Zigbeebuffer *zigbee_front, *zigbee_rear;
-Zigbeebuffer *Zbuffer;
-//UDPbuffer *udp_front, *udp_rear;
-UDPbuffer *Ubuffer;
+// //Zigbeebuffer *zigbee_front, *zigbee_rear;
+// Zigbeebuffer *Zbuffer;
+// //UDPbuffer *udp_front, *udp_rear;
+// UDPbuffer *Ubuffer;
 
 /*
 *   Variables
 */
-bool zigbee_queue_is_locked;
-bool udp_queue_is_locked;
-bool zigbee_queue_is_empty;
-bool udp_queue_is_empty;
+bool send_to_beacon_buffer_is_locked;
+bool recieve_from_beacon_buffer_is_locked;
+bool send_tos_server_buffer_is_locked;
+bool revieve_from_server_buffer_is_locked;
 
-int *zigbeeQueueFront, *zigbeeQueueRear;
-int *udpQueueFront, *udpQueueRear;
+bool send_to_beacon_buffer_is_empty;
+bool recieve_from_beacon_buffer_is_empty;
+bool send_tos_server_buffer_is_empty;
+bool revieve_from_server_buffer_is_empty;
+
+FILE *sendToBeaconBufferFront;
+FILE *sendToBeaconBufferRear;
+
+FILE *revieveFromBeaconBufferFront;
+FILE *revieveFromBeaconBufferRear;
+
+FILE *sendToServerBufferFront;
+FILE *sendToServerBufferRear;
+
+FILE *revieveFromServerBufferFront;
+FILE *revieveFromServerBufferRear;
+
+FILE sendToBeaconBuffer[BUFFER_SIZE];
+FILE recieveFromBeaconBuffer[BUFFER_SIZE];
+FILE sendToServerBuffer[BUFFER_SIZE];
+FILE revieveFromServerBuffer[BUFFER_SIZE];
 
 
 /*
@@ -125,26 +144,9 @@ extern bool system_is_shutting_down;
 void *CommUnit_routine();
 
 /*
-*  init_zigbee_buffer:
+*  init_buffer:
 *
-*  This function initializes the queue which contains the commands sent from
-*  server and beacons.
 *
-*  Parameters:
-*
-*  Node
-*
-*  Return value:
-*
-*  None
-*/
-void init_zigbee_buffer();
-
-/*
-*  init_udp_buffer:
-*
-*  This function initializes the queue which contains the commands sent from
-*  server and beacons.
 *
 *  Parameters:
 *
@@ -154,7 +156,7 @@ void init_zigbee_buffer();
 *
 *  None
 */
-void init_udp_buffer();
+void init_buffer(void *front, void *rear, void *buffer);
 
 /*
 *  RFHR
@@ -176,19 +178,9 @@ void RFHR();
 /*
 *
 */
-void *zigbee_dequeue(int *front, int *rear);
+void *buffer_dequeue(void *front, void *rear, void *buffer);
 
 /*
 *
 */
-void zigbee_enqueue(int *front, int *rear, Zigbeebuffer *item);
-
-/*
-*
-*/
-void *udp_dequeue(int *front, int *rear);
-
-/*
-*
-*/
-void udp_enqueue(int *front, int *rear, UDPbuffer *item);
+void buffer_enqueue(void *front, void *rear, void *buffer);

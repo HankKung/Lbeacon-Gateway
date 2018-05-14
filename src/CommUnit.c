@@ -50,12 +50,19 @@
 
 void *CommUnit_routine(){
 
-    init_zigbee_buffer(zigbee_front,zigbee_rear);
-    init_udp_buffer(udp_front,udp_rear);
-    bool zigbee_queue_is_locked = false;
-    bool udp_queue_is_locked = false;
-    bool zigbee_queue_isempty = true;
-    bool udp_queue_is_empty = true;
+    init_buffer(FILE *sendToBeaconBufferFront, FILE *sendToBeaconBufferRear,);
+    
+
+    bool send_to_beacon_buffer_is_locked = false;
+    bool recieve_from_beacon_buffer_is_locked = false;
+    bool send_tos_server_buffer_is_locked = false;
+    bool revieve_from_server_buffer_is_locked = false;
+
+    bool send_to_beacon_buffer_is_empty = true;
+    bool recieve_from_beacon_buffer_is_empty = true;
+    bool send_tos_server_buffer_is_empty = true;
+    bool revieve_from_server_buffer_is_empty = true;
+
     //when initialization completes,
     CommUnit_initialization_complete = true;
     while (system_is_shutting_down == false) {
@@ -84,21 +91,15 @@ void *CommUnit_routine(){
     return;
  }
 
-void init_zigbee_buffer(int *front, int *rear){
-    Zigbeebuffer *Zbuffer = (Zigbeebuffer*) malloc(sizeof(Zigbeebuffer)*BUFFER_SIZE);
-    *front = *rear = -1; 
-}
-
-void init_udp_buffer(int *front, int *rear){
-    UDPbuffer *Ubuffer = (UDPbuffer*) malloc(sizeof(UDPbuffer)*BUFFER_SIZE);
-    *front = *rear = -1;
+void init_buffer(void *front, void *rear, void *buffer){
+    front = rear = buffer;
 }
 
 void RFHR(){
 
 }
 
-void *zigbee_dequeue(int *front, int *rear){
+void *buffer_dequeue(void *front, void *rear, void *buffer){
 
     /* Wait for the turn to use the queue */
     while(zigbee_queue_is_locked){
@@ -117,7 +118,7 @@ void *zigbee_dequeue(int *front, int *rear){
     zigbee_queue_is_locked = false;
 }
 
-void zigbee_enqueue(int *front, int *rear, Zigbeebuffer *item){
+void buffer_enqueue(void *front, void *rear, void *buffer){
     /* Wait for the turn to use the queue */
     while(zigbee_queue_is_locked){
         sllep(A_SHORT_TIME);
