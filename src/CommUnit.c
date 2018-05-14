@@ -50,18 +50,16 @@
 
 void *CommUnit_routine(){
 
-    init_buffer(FILE *sendToBeaconBufferFront, FILE *sendToBeaconBufferRear,);
+    Buffer sendToBeacon.name = "sendToBeacon";
+    Buffer recieveFromBeacon.name = "recieveFromBeacon";
+    Buffer sendToServer.name = "sendToServer"; 
+    Buffer recieveFromServer.name = "recieveFromServer";
+    init_buffer(sendToBeacon);
+    init_buffer(recieveFromBeacon);
+    init_buffer(sendToServer);
+    init_buffer(recieveFromServer);
     
 
-    bool send_to_beacon_buffer_is_locked = false;
-    bool recieve_from_beacon_buffer_is_locked = false;
-    bool send_tos_server_buffer_is_locked = false;
-    bool revieve_from_server_buffer_is_locked = false;
-
-    bool send_to_beacon_buffer_is_empty = true;
-    bool recieve_from_beacon_buffer_is_empty = true;
-    bool send_tos_server_buffer_is_empty = true;
-    bool revieve_from_server_buffer_is_empty = true;
 
     //when initialization completes,
     CommUnit_initialization_complete = true;
@@ -70,105 +68,76 @@ void *CommUnit_routine(){
 
         /* If both Zigbee queue and UDP queue are empty then sleep 
         a short time*/
-        if(!zigbee_queue_is_empty || !udp_queue_is_empty){
-            if (startThead (zigbee_dequeue()) != WORK_SCUCESSFULLY)
-                printf("Zigbee dequeue failure");
-            if (startThead (udp_dequeue()) != WORK_SCUCESSFULLY)
-                printf("UDP dequeue failure");
+        if(!is_buffer_empty(sendToBeacon) || !is_buffer_empty(recieveFromBeacon)
+        !is_buffer_empty(sendToServer) || !is_buffer_empty(recieveFromServer))
+        {
+            // if (startThead (zigbee_dequeue()) != WORK_SCUCESSFULLY)
+            //     printf("Zigbee dequeue failure");
+            // if (startThead (udp_dequeue()) != WORK_SCUCESSFULLY)
+            //     printf("UDP dequeue failure");
 
-            if (startThead (zigbee_enqueue()) != WORK_SCUCESSFULLY)
-                printf("Zigbee enqueue failure");
-            if (startThead (udp_enqueue()) != WORK_SCUCESSFULLY)
-                printf("UDP enqueue failure");
+            // if (startThead (zigbee_enqueue()) != WORK_SCUCESSFULLY)
+            //     printf("Zigbee enqueue failure");
+            // if (startThead (udp_enqueue()) != WORK_SCUCESSFULLY)
+            //     printf("UDP enqueue failure");
         }
         else sleep(A_SHORT_TIME);
         
 
         }
     CommUnit_cleanup_exit();
-    free(Zbuffer);
-    free(Ubuffer);
     return;
  }
 
-void init_buffer(void *front, void *rear, void *buffer){
-    front = rear = buffer;
+void init_buffer(Buffer buffer){
+    buffer.front = buffer.rear = 0;
+    buffer.is_lock = false;
+    buffer.is_empty = true;
 }
 
-void RFHR(){
 
-}
 
-void *buffer_dequeue(void *front, void *rear, void *buffer){
+void *buffer_dequeue(Buffer buffer){
 
     /* Wait for the turn to use the queue */
-    while(zigbee_queue_is_locked){
+    while(buffer._is_locked){
         sleep(A_SHORT_TIME);
     }
-    zigbee_queue_is_locked = true;
-    if(*front == *rear){
-        printf("Zigbee queue is empty currently, can not dequeue anymore");
-        zigbee_queue_is_empty = true;
-        zigbee_queue_is_locked = false;
+    buufer.is_locked = true;
+    if(buffer.front == buffer.rear){
+        printf("%s is empty currently, can not dequeue anymore",buffer.name);
+        buffer.is_empty = true;
+        buffer.is_locked = false;
         return;
     }   
     /* Execute function according the command name */
 
     /* Free the control*/
-    zigbee_queue_is_locked = false;
+    buffer.is_locked = false;
 }
 
-void buffer_enqueue(void *front, void *rear, void *buffer){
+void buffer_enqueue(Buffer buffer, FILE *item){
     /* Wait for the turn to use the queue */
-    while(zigbee_queue_is_locked){
+    while(buffer.is_locked){
         sllep(A_SHORT_TIME);
     }
-    zigbee_queue_is_locked = true;
+    buffer.is_locked = true;
     /* If buffer is full currently then just skip Enqueue till there's
     room for it.P.S. Overflow problem will got solved later */
-    if( (*front == *rear + 1) || (*front == 0 && *rear == BUFFER_SIZE-1))
+    if( (buffer.front == buffer.rear + 1) || (buffer.front == 0 && buffer.rear == BUFFER_SIZE-1))
     return;
     /* *front is -1 when the buffer is empty */
-    if(*front == -1) *front = 0;
-    *rear = (*rear + 1) % BUFFER_SIZE;
-    Zbuffer[rear] = *item;
+    if(buffer.front == -1) buffer.front = 0;
+    buffer.rear = (buffer.rear + 1) % BUFFER_SIZE;
+    buffer.content[buffer.rear] = *item;
     /* Set flag true anyway */
-    zigbee_queue_is_locked = false;
+    buffer.is_locked = false;
 }
 
-void *udp_dequeue(int *front, int *rear){
-    /* Wait for the turn */
-    while(udp_queue_is_locked){
-        sleep(A_SHORT_TIME);
-    }
-    udp_queue_is_locked = true;
-    if(*front == *rear){
-        //printf("UDP queue is empty currently, can not dequeue anymore");
-        udp_queue_is_empty = true;
-        udp_queue_is_locked = false;
-        return;
-    }
-    /* Execute function according the command name */
-    //
-
-    /* Free the control*/
-    udp_queue_is_locked = false;
+bool is_buffer_empty(Buffer buffer){
+    return buffer.is_empty;
 }
 
-void udp_enqueue(int *front, int *rear, UDPbuffer *item){
-    /* Wait for the turn to use the queue */
-    while(udp_queue_is_locked){
-        sllep(A_SHORT_TIME);
-    }
-    udp_queue_is_locked = true;
-    /* If buffer is full currently then just skip Enqueue till there's
-    room for it.P.S. Overflow problem will got solved later */
-    if( (*front == *rear + 1) || (*front == 0 && *rear == BUFFER_SIZE-1))
-    return;
-    /* *front is -1 when the buffer is empty */
-    if(*front == -1) *front = 0;
-    *rear = (*rear + 1) % BUFFER_SIZE;
-    Ubuffer[rear] = *item;
-    /* Set flag true anyway */
-    udp_queue_is_locked = false;
+void RFHR(){
+
 }

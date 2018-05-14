@@ -47,6 +47,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define A_SHORT_TIME 1000
 #define A_LONG_TIME 5000
@@ -68,65 +69,25 @@ typedef enum commandrequest {
     GET_BEACON_INFO = 4
 }CommandRequest;
 
-// /* Command format in the queue */
-// typedef struct zigbeebuffer{
-//     /* Command kind */
-//     CommandRequest command_name;
-//     /* If the command is from server, set 0; Otherwise, BeaconID(Table in NSI Module) */
-//     int beaconID;
-//     /* The targeted Beacon ID */
-//     void *data;
-//     /* Point to the next command in the queue */
-//     void *next;
-// }Zigbeebuffer;
+/*
+* STRUCT
+*/
 
-
-/**/
-// typedef struct udpbuffer{
-//     /**/
-//     CommandRequest command_name;
-//     /**/
-//     int beaconID;
-//     /**/
-//     void *data;
-//     /**/
-//     void *next;
-// }UDPbuffer;
-
-// //Zigbeebuffer *zigbee_front, *zigbee_rear;
-// Zigbeebuffer *Zbuffer;
-// //UDPbuffer *udp_front, *udp_rear;
-// UDPbuffer *Ubuffer;
+/* */
+typedef struct buffer{
+    char *name;
+    FILE content[BUFFER_SIZE];
+    int front;
+    int rear;
+    bool is_locked;
+    bool is_empty;
+}Buffer;
 
 /*
 *   Variables
 */
-bool send_to_beacon_buffer_is_locked;
-bool recieve_from_beacon_buffer_is_locked;
-bool send_tos_server_buffer_is_locked;
-bool revieve_from_server_buffer_is_locked;
-
-bool send_to_beacon_buffer_is_empty;
-bool recieve_from_beacon_buffer_is_empty;
-bool send_tos_server_buffer_is_empty;
-bool revieve_from_server_buffer_is_empty;
-
-FILE *sendToBeaconBufferFront;
-FILE *sendToBeaconBufferRear;
-
-FILE *revieveFromBeaconBufferFront;
-FILE *revieveFromBeaconBufferRear;
-
-FILE *sendToServerBufferFront;
-FILE *sendToServerBufferRear;
-
-FILE *revieveFromServerBufferFront;
-FILE *revieveFromServerBufferRear;
-
-FILE sendToBeaconBuffer[BUFFER_SIZE];
-FILE recieveFromBeaconBuffer[BUFFER_SIZE];
-FILE sendToServerBuffer[BUFFER_SIZE];
-FILE revieveFromServerBuffer[BUFFER_SIZE];
+Buffer sendToBeacon, recieveFromBeacon;
+Buffer sendToServer, recieveFromServer;
 
 
 /*
@@ -156,8 +117,22 @@ void *CommUnit_routine();
 *
 *  None
 */
-void init_buffer(void *front, void *rear, void *buffer);
+void init_buffer(Buffer buffer);
 
+/*
+*
+*/
+void *buffer_dequeue(Buffer buffer);
+
+/*
+*
+*/
+void buffer_enqueue(Buffer buffer, FILE *item);
+
+/*
+*
+*/
+bool is_buffer_empty(Buffer buffer);
 /*
 *  RFHR
 *
@@ -174,13 +149,3 @@ void init_buffer(void *front, void *rear, void *buffer);
 *  None
 */
 void RFHR();
-
-/*
-*
-*/
-void *buffer_dequeue(void *front, void *rear, void *buffer);
-
-/*
-*
-*/
-void buffer_enqueue(void *front, void *rear, void *buffer);
