@@ -69,12 +69,11 @@ long long get_system_time() {
 /* Set up Zigbee connection by calling Zigbee_routine in LBeacon_Zigbee.h */
 void *NSI_routine(){
 
-    if (startThead (Zigbee_routine()) != WORK_SCUCESSFULLY) {
-        initialization_failed = true;
-        NSIcleanupExit( );
-    }
+    int beacon_count = 0;
+
     
-    /* Socket Set Up */
+    
+    /* UDP Socket Set Up */
     struct sockaddr_in si_other;
     int s, i, slen=sizeof(si_other);
     char buf[BUFLEN];
@@ -107,8 +106,14 @@ void *NSI_routine(){
      // start a thread to maintain beacon_address map. The thread
      // should also check system_is_shutting_down flag periodically
      // and returns when it finds the flag is true.*/
-     int beacon_count = 1;
+
+     if (startThead (Zigbee_routine()) != WORK_SCUCESSFULLY) {
+        printf("Zigbee network failed\n")
+        initialization_failed = true;
+        NSIcleanupExit( );
+    }
      if (startThead (address_map_manager()) != WORK_SCUCESSFULLY) {
+         printf("addrss_map_manager initialization failed\n")
          initialization_failed = true;
          NSIcleanupExit( );
      }
@@ -128,25 +133,26 @@ void *NSI_routine(){
          //if
 
         //do a chunk of work and/or sleep for a short time
-        printf("Enter message : ");
-        gets(message);
          
         //send the message
-        if (sendto(s, message, strlen(message) , 0 , (struct sockaddr *) &si_other, slen)==-1)
-        {
-            die("sendto()");
-        }
+        // if (sendto(s, message, strlen(message) , 0 , (struct sockaddr *) &si_other, slen)==-1)
+        // {
+        //     die("sendto()");
+        // }
          
-        //receive a reply and print it
         //clear the buffer by filling null, it might have previously received data
-        memset(buf,'\0', BUFLEN);
+        memset(buffer,'\0', BUFLEN);
         //try to receive some data, this is a blocking call
-        if (recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen) == -1)
+        if (recvfrom(s, buffer, BUFLEN, 0, (struct sockaddr *) &si_other, &slen) == -1)
         {
             die("recvfrom()");
         }
-         
-        puts(buf);
+        puts(buffer);
+        /* Dequeue buffer */
+        if(!is_buffer_empty(recieveFromServer){
+            FILE *item = buffer_dequeue(recieveFromServer);
+            /* Read the file dequeued from buffer, then execute command */
+        }
      
      sleep(A_SHORT_TIME);
      }
@@ -161,6 +167,8 @@ void *NSI_routine(){
 }
 
 void *address_map_manager(){
+
+    beacon_count = 1;
     //gateway info
     unsigned zigbee_macaddr;
     coordinates gateway_coordinates;
@@ -207,21 +215,6 @@ void *BHM_routine(){
     ready_to_work = false;
     BHM_cleanup_exit();
     return;
-}
-
-void RFHR(){
-
-    int scan_number = 0;
-     /*check beacons one by one. Default value is true; If beacon is failed,
-     then set to false */
-    for(int i = 0; i< beacon_count ; i++){
-        scan_number++;
-        //startthread(send_command_to_beacon)
-        //Send signal to the beacon according beaconID
-        //Wait till the beacon sends back the health report
-        
-        if(scan_number == beacon_count)break;
-    }
 }
 
 

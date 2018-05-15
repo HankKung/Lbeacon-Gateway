@@ -105,7 +105,7 @@ void *buffer_dequeue(Buffer buffer){
     }
     buufer.is_locked = true;
     if(buffer.front == buffer.rear){
-        printf("%s is empty currently, can not dequeue anymore",buffer.name);
+        printf("%s is empty currently, can not dequeue anymore\n",buffer.name);
         buffer.is_empty = true;
         buffer.is_locked = false;
         return;
@@ -124,8 +124,11 @@ void buffer_enqueue(Buffer buffer, FILE *item){
     buffer.is_locked = true;
     /* If buffer is full currently then just skip Enqueue till there's
     room for it.P.S. Overflow problem will got solved later */
-    if( (buffer.front == buffer.rear + 1) || (buffer.front == 0 && buffer.rear == BUFFER_SIZE-1))
-    return;
+    if( (buffer.front == buffer.rear + 1) || 
+    (buffer.front == 0 && buffer.rear == BUFFER_SIZE-1)){
+        printf("Queue is full now\n")
+        return;
+    }
     /* *front is -1 when the buffer is empty */
     if(buffer.front == -1) buffer.front = 0;
     buffer.rear = (buffer.rear + 1) % BUFFER_SIZE;
