@@ -68,8 +68,7 @@ void *CommUnit_routine(){
 
         /* If both Zigbee queue and UDP queue are empty then sleep 
         a short time*/
-        if(!is_buffer_empty(sendToBeacon) || !is_buffer_empty(recieveFromBeacon)
-        !is_buffer_empty(sendToServer) || !is_buffer_empty(recieveFromServer))
+        if(!is_buffer_empty(recieveFromBeacon))
         {
             // if (startThead (zigbee_dequeue()) != WORK_SCUCESSFULLY)
             //     printf("Zigbee dequeue failure");
@@ -80,8 +79,17 @@ void *CommUnit_routine(){
             //     printf("Zigbee enqueue failure");
             // if (startThead (udp_enqueue()) != WORK_SCUCESSFULLY)
             //     printf("UDP enqueue failure");
+            FILE *item = buffer_dequeue(recieveFromBeacon);
+            buffer_enqueue(sendToServer, item);
         }
-        else sleep(A_SHORT_TIME);
+        if(!is_buffer_empty(recieveFromServer))){
+            /* Read the file and execute command */
+            /* Depends on command category, it can be broadcast to all 
+            beacons or for some specific beacons.
+            */
+        }
+
+        if() sleep(A_SHORT_TIME);
         
 
         }
@@ -90,6 +98,8 @@ void *CommUnit_routine(){
  }
 
 void init_buffer(Buffer buffer){
+    //clear the buffer by filling null, it might have previously received data
+     memset(buffer.content,'\0', BUFFER_SIZE);
     buffer.front = buffer.rear = 0;
     buffer.is_lock = false;
     buffer.is_empty = true;

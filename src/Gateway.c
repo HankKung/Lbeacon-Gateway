@@ -94,7 +94,7 @@ void *NSI_routine(){
         exit(1);
     }
 
-    // make sure WiFi has been correctly configured ....
+    // Make sure WiFi has been correctly configured ....
     int ping_ret, status;
     status = system("ping google.com");
     if (-1 != status)
@@ -127,34 +127,46 @@ void *NSI_routine(){
          sleep(A_SHORT_TIME);
      }
     
-     // ready to work, check for system shutdown flag periodically
+    // ready to work, check for system shutdown flag periodically
+
+    pthread_t wifi_reciever_thread;
+    /* Rename it to prevent from getting confused with the one in
+    main thread */
+    return_error_value = startThread(wifi_receiver_thread, wifi_receiver, NULL);
+
+    if(return_error_value != WORK_SCUCESSFULLY){
+
+        perror(errordesc[E_START_THREAD].message);
+    }
+
+    pthread_t wifi_sender_thread;
+    return_error_value = startThread(wifi_sender_thread, wifi_sender, NULL);
+
+    if(return_error_value != WORK_SCUCESSFULLY){
+
+        perror(errordesc[E_START_THREAD].message);
+    }
+
+    pthread_t zigbee_receiver_thread;
+    return_error_value = startThread(zigbee_receiver_thread, zigbee_receiver, NULL);
+
+    if(return_error_value != WORK_SCUCESSFULLY){
+
+        perror(errordesc[E_START_THREAD].message);
+
+    }
+    pthread_t wifi_sender_thread;
+    return_error_value = startThread(wifi_sender_thread, wifi_sender, NULL);
+
+    if(return_error_value != WORK_SCUCESSFULLY){
+
+        perror(errordesc[E_START_THREAD].message);
+    }
+
      while (system_is_shutting_down == false) {
-
-         //if
-
         //do a chunk of work and/or sleep for a short time
-         
-        //send the message
-        // if (sendto(s, message, strlen(message) , 0 , (struct sockaddr *) &si_other, slen)==-1)
-        // {
-        //     die("sendto()");
-        // }
-         
-        //clear the buffer by filling null, it might have previously received data
-        memset(buffer,'\0', BUFLEN);
-        //try to receive some data, this is a blocking call
-        if (recvfrom(s, buffer, BUFLEN, 0, (struct sockaddr *) &si_other, &slen) == -1)
-        {
-            die("recvfrom()");
-        }
-        puts(buffer);
-        /* Dequeue buffer */
-        if(!is_buffer_empty(recieveFromServer){
-            FILE *item = buffer_dequeue(recieveFromServer);
-            /* Read the file dequeued from buffer, then execute command */
-        }
      
-     sleep(A_SHORT_TIME);
+        sleep(A_SHORT_TIME);
      }
 
     close(s);
@@ -185,6 +197,47 @@ void *address_map_manager(){
         //startthread(beacon_join_request());
     }
     return;
+}
+
+void *wifi_reciever(){
+    while (system_is_shutting_down == false) {
+
+        /* Recieving and sending have to be splited up into to threads, since
+        they are call back functions. It cost too much if they had to wait for 
+        each other. And these two threads should not start in a while loop. */
+        if (recvfrom(s, buffer, BUFLEN, 0, (struct sockaddr *) &si_other, &slen) == -1)
+        {
+            die("recvfrom()");
+        }
+        puts(buffer);
+        /* Dequeue buffer */
+        if(!is_buffer_empty(recieveFromServer){
+            FILE *item = buffer_dequeue(recieveFromServer);
+            /* Read the file dequeued from buffer, then execute command */
+        }
+    }
+
+}
+
+void *wifi_sender(){
+    while (system_is_shutting_down == false) {
+
+    }
+
+}
+
+void *zigbee_sender(){
+    while (system_is_shutting_down == false) {
+
+    }
+
+}
+
+void *zigbee_sender(){
+    while (system_is_shutting_down == false) {
+
+    }
+
 }
 
 void *beacon_join_request(int index, unsigned ID,Coordinates Beacon_Coordinates,
@@ -299,8 +352,11 @@ int main(int argc, char **argv)
         cleanup_exit();
     }
 
+    while(1){
+        sleep(A_LONG_TIME);
+    }
 
-
+    cleanup_exit();
 
 }
 

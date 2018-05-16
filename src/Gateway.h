@@ -91,11 +91,15 @@
 
 #define A_LONG_TIME 5000
 
-/* UDP connection buffer in gateway */
+/* Buffer size in gateway */
 #define BUFFER_SIZE 1024
 
 /* The time intervial between each beacon health self-testing */
 #define PERIOD_TO_MONITOR 1000*100
+
+/*  */
+#define SERV_PORT 8888
+
 
 /*
 * TYPEDEF STRUCTS
@@ -197,6 +201,62 @@ void *NSI_routine();
 *  O
 */
 int address_map_manager();
+
+/*
+*  wifi_reciever:
+*
+*
+*  Parameters:
+*
+*  None
+*
+*  Return value:
+*
+*  O
+*/
+void *wifi_reciever();
+
+/*
+*  wifi_sender:
+*
+*
+*  Parameters:
+*
+*  None
+*
+*  Return value:
+*
+*  O
+*/
+void *wifi_sender();
+
+/*
+*  zigbee_receiver:
+*
+*
+*  Parameters:
+*
+*  None
+*
+*  Return value:
+*
+*  O
+*/
+void *zigbee_receiver();
+
+/*
+*  zigbee_sender:
+*
+*
+*  Parameters:
+*
+*  None
+*
+*  Return value:
+*
+*  O
+*/
+void *zigbee_sender();
 
 /*
 *  beacon_join_request:
