@@ -72,8 +72,6 @@ void *NSI_routine(){
 
     int beacon_count = 0;
 
-    
-    
     /* UDP Socket Set Up */
     struct sockaddr_in si_other;
     int s, i, slen=sizeof(si_other);
@@ -129,40 +127,6 @@ void *NSI_routine(){
      }
     
     // ready to work, check for system shutdown flag periodically
-
-    pthread_t wifi_reciever_thread;
-    /* Rename it to prevent from getting confused with the one in
-    main thread */
-    return_error_value = startThread(wifi_receiver_thread, wifi_receiver, NULL);
-
-    if(return_error_value != WORK_SCUCESSFULLY){
-
-        perror(errordesc[E_START_THREAD].message);
-    }
-
-    pthread_t wifi_sender_thread;
-    return_error_value = startThread(wifi_sender_thread, wifi_sender, NULL);
-
-    if(return_error_value != WORK_SCUCESSFULLY){
-
-        perror(errordesc[E_START_THREAD].message);
-    }
-
-    pthread_t zigbee_receiver_thread;
-    return_error_value = startThread(zigbee_receiver_thread, zigbee_receiver, NULL);
-
-    if(return_error_value != WORK_SCUCESSFULLY){
-
-        perror(errordesc[E_START_THREAD].message);
-
-    }
-    pthread_t zigbee_sender_thread;
-    return_error_value = startThread(zigbee_sender_thread, zigbee_sender, NULL);
-
-    if(return_error_value != WORK_SCUCESSFULLY){
-
-        perror(errordesc[E_START_THREAD].message);
-    }
 
      while (system_is_shutting_down == false) {
         //do a chunk of work and/or sleep for a short time

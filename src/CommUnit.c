@@ -59,7 +59,39 @@ void *CommUnit_routine(){
     init_buffer(sendToServer);
     init_buffer(recieveFromServer);
     
+    pthread_t wifi_reciever_thread;
+    /* Rename it to prevent from getting confused with the one in
+    main thread */
+    return_error_value = startThread(wifi_receiver_thread, wifi_receiver, NULL);
 
+    if(return_error_value != WORK_SCUCESSFULLY){
+
+        perror(errordesc[E_START_THREAD].message);
+    }
+
+    pthread_t wifi_sender_thread;
+    return_error_value = startThread(wifi_sender_thread, wifi_sender, NULL);
+
+    if(return_error_value != WORK_SCUCESSFULLY){
+
+        perror(errordesc[E_START_THREAD].message);
+    }
+
+    pthread_t zigbee_receiver_thread;
+    return_error_value = startThread(zigbee_receiver_thread, zigbee_receiver, NULL);
+
+    if(return_error_value != WORK_SCUCESSFULLY){
+
+        perror(errordesc[E_START_THREAD].message);
+
+    }
+    pthread_t zigbee_sender_thread;
+    return_error_value = startThread(zigbee_sender_thread, zigbee_sender, NULL);
+
+    if(return_error_value != WORK_SCUCESSFULLY){
+
+        perror(errordesc[E_START_THREAD].message);
+    }
 
     //when initialization completes,
     CommUnit_initialization_complete = true;
