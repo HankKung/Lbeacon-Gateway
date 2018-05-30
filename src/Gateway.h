@@ -65,7 +65,6 @@
 #include "Lbeacon_Zigbee_Gateway.h"
 #include "CommUnit.h"
 
-
 /* 
 * CONSTANTS 
 */

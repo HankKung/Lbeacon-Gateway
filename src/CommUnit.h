@@ -48,6 +48,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sys/socket.h>
 
 #define A_SHORT_TIME 1000
 #define A_LONG_TIME 5000
@@ -89,15 +90,12 @@ typedef struct buffer{
 Buffer sendToBeacon, recieveFromBeacon;
 Buffer sendToServer, recieveFromServer;
 
-
 /*
 *   External Variables
 */ 
 
 extern bool CommUnit_initialization_complete;
-
 extern bool system_is_shutting_down;
-
 
 /*
 *  CommUnit_routine:
