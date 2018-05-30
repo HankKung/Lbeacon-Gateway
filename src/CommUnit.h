@@ -58,7 +58,7 @@
 
 typedef enum commandrequest {
     /* Request for health report */
-    RFHR = 0,
+    HEALTH_REPORT = 0,
     /**/
     BEACON_JOIN_REQUEST = 1,
     /* Server web sends coordinates of the beacon */
@@ -133,6 +133,7 @@ void buffer_enqueue(Buffer buffer, FILE *item);
 *
 */
 bool is_buffer_empty(Buffer buffer);
+
 /*
 *  RFHR
 *
@@ -149,3 +150,59 @@ bool is_buffer_empty(Buffer buffer);
 *  None
 */
 void RFHR();
+
+/*
+*  wifi_reciever:
+*
+*
+*  Parameters:
+*
+*  None
+*
+*  Return value:
+*
+*  O
+*/
+void *wifi_reciever();
+
+/*
+*  wifi_sender:
+*
+*
+*  Parameters:
+*
+*  None
+*
+*  Return value:
+*
+*  O
+*/
+void *wifi_sender();
+
+/*
+*  zigbee_receiver:
+*
+*
+*  Parameters:
+*
+*  None
+*
+*  Return value:
+*
+*  O
+*/
+void *zigbee_receiver();
+
+/*
+*  zigbee_sender:
+*
+*
+*  Parameters:
+*
+*  None
+*
+*  Return value:
+*
+*  O
+*/
+void *zigbee_sender();

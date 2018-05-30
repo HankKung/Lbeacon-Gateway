@@ -151,6 +151,47 @@ bool is_buffer_empty(Buffer buffer){
     return buffer.is_empty;
 }
 
+void *wifi_reciever(){
+    while (system_is_shutting_down == false) {
+
+        /* Recieving and sending have to be splited up into to threads, since
+        they are call back functions. It cost too much if they had to wait for 
+        each other. And these two threads should not start in a while loop. */
+        if (recvfrom(s, buffer, BUFLEN, 0, (struct sockaddr *) &si_other, &slen) == -1)
+        {
+            die("recvfrom()");
+        }
+        puts(buffer);
+        /* Dequeue buffer */
+        if(!is_buffer_empty(recieveFromServer){
+            FILE *item = buffer_dequeue(recieveFromServer);
+            /* Read the file dequeued from buffer, then execute command */
+        }
+    }
+
+}
+
+void *wifi_sender(){
+    while (system_is_shutting_down == false) {
+
+    }
+
+}
+
+void *zigbee_sender(){
+    while (system_is_shutting_down == false) {
+
+    }
+
+}
+
+void *zigbee_sender(){
+    while (system_is_shutting_down == false) {
+
+    }
+
+}
+
 void RFHR(){
 
 }
